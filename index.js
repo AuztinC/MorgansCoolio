@@ -2,7 +2,9 @@ const pg = require('pg')
 const client = new pg.Client('postgres://localhost/morgans_coolio_db')
 const express = require('express')
 const app = express()
+const cors = require('cors')
 
+app.use(cors())
 app.use(express.json())
 
 app.get('/api/duel_monsters', async(req,res,next)=>{
@@ -50,9 +52,10 @@ app.post('/api/duel_monsters', async(req,res,next)=>{
         // console.log(req.body)
         const SQL = `
         INSERT INTO duel_monsters VALUES ($1, $2, $3, $4, $5)
+        RETURNING *
         `;
-        console.log("adding...")
         const response = await client.query(SQL, [req.body.name, req.body.level, req.body.attribute, req.body.attack, req.body.defense])
+        console.log(response)
         res.send(response.rows[0])
     } catch (error) {
         next(error)
