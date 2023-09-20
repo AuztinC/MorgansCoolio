@@ -62,11 +62,46 @@ function Monster( { monsters, deleteMonster, updateMonster }){
   </>)
 }
 
-function Monsters( { monsters }){
- return (<>
+function Monsters( { monsters, createMonster }){
+  const [createForm, setCreateForm] = useState(false)
+
+  function handleCreate(ev){
+    ev.preventDefault()
+    const monster = {
+      name: ev.target.name.value,
+      level: ev.target.level.value,
+      attribute: ev.target.attribute.value,
+      attack: ev.target.attack.value,
+      defense: ev.target.defense.value
+    }
+    createMonster( monster )
+    ev.target.name.value = ""
+    ev.target.level.value = ""
+    ev.target.attribute.value = ""
+    ev.target.attack.value = ""
+    ev.target.defense.value = ""
+    setCreateForm(false)
+  }
+  return (<>
+    {
+      createForm ?<>
+      <form onSubmit={handleCreate}>
+        <label htmlFor="name">Name:<input type="text" name="name" id="name" required/></label>
+        <label htmlFor="level">Level:<input type="number" name="level" id="level" required/></label>
+        <label htmlFor="attribute">Attribute:<input type="text" name="attribute" id="attribute" required/></label>
+        <label htmlFor="attack">Attack:<input type="number" name="attack" id="attack" required/></label>
+        <label htmlFor="defense">Defense:<input type="number" name="defense" id="defense" required/></label>
+      <button type='submit'>Submit</button>
+      </form>
+      <button onClick={()=>setCreateForm(false)}>Cancel</button>
+      </>
+      :
+      <button onClick={()=>setCreateForm(true)}>Create Monster</button>
+    }
+    <div id='mainCont'>
     {
       monsters.map((mon)=>{
-        return (
+        return (<>
         <div  className='monsterCont' key={mon.id}>
           <Link to={`/duel_monsters/${mon.id}`} >
               <p>Monster: { mon.name }</p>
@@ -75,17 +110,16 @@ function Monsters( { monsters }){
               <p>Attack: { mon.attack }</p>
               <p>Defense: { mon.defense }</p>
           </Link>
-
         </div>
-        )
+      </>)
       })
     }
+ </div>
  </>)
 }
 
 function App() {
   const [monsters, setMonsters] = useState([])
-  const [createForm, setCreateForm] = useState(false)
 
   useEffect(()=>{
     getMonsters()
@@ -111,46 +145,15 @@ function App() {
     setMonsters(monsters.map(mon=> mon.id !== response.data.id ? mon : response.data))
   }
 
-  function handleCreate(ev){
-    ev.preventDefault()
-    const monster = {
-      name: ev.target.name.value,
-      level: ev.target.level.value,
-      attribute: ev.target.attribute.value,
-      attack: ev.target.attack.value,
-      defense: ev.target.defense.value
-    }
-    createMonster( monster )
-    ev.target.name.value = ""
-    ev.target.level.value = ""
-    ev.target.attribute.value = ""
-    ev.target.attack.value = ""
-    ev.target.defense.value = ""
-    setCreateForm(false)
-  }
+
 
 
   return (
     <>
     <Link to={'/'}> Home </Link>
-      {
-        createForm ?<>
-        <form onSubmit={handleCreate}>
-          <label htmlFor="name">Name:<input type="text" name="name" id="name" required/></label>
-          <label htmlFor="level">Level:<input type="number" name="level" id="level" required/></label>
-          <label htmlFor="attribute">Attribute:<input type="text" name="attribute" id="attribute" required/></label>
-          <label htmlFor="attack">Attack:<input type="number" name="attack" id="attack" required/></label>
-          <label htmlFor="defense">Defense:<input type="number" name="defense" id="defense" required/></label>
-        <button type='submit'>Submit</button>
-        </form>
-        <button onClick={()=>setCreateForm(false)}>Cancel</button>
-        </>
-        :
-        <button onClick={()=>setCreateForm(true)}>Create Monster</button>
-      }
 
       <Routes>
-        <Route path='/' element={ <Monsters monsters={ monsters }/> } />
+        <Route path='/' element={ <Monsters createMonster={createMonster} monsters={ monsters }/> } />
         <Route path='/duel_monsters/:id' element={ <Monster updateMonster={updateMonster} deleteMonster={deleteMonster} monsters={monsters}/> } />
       </Routes>
     </>
